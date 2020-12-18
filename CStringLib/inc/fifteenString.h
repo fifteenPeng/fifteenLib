@@ -51,15 +51,32 @@ int8_t FB_GetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t BuffLen);
 返回：-1 转换失败  1转换成功
 
 错误描述：
-1.数据超出指定长度
 ********************************** */
 // int8_t GetStringNumber(uint8_t * Buff,int32_t * NumP,uint16_t * ProcLen ,uint32_t * Magn,uint16_t DataLen)
 int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen);
+
+/* *******************************
+函数名：
+描述：比较指定的字符串，匹配说明，保证数据的不越界
+    '*' 任意字符 
+    '#' 数字字符 '0' '9'
+    '%' 符号字符 '+' '-'
+输入：
+    * buff1  数组
+    * buff2  数组2
+    
+输出：
+返回：-1 转换失败  1转换成功
+
+错误描述：
+********************************** */
+int8_t FB_StrCmp(int8_t* buff1,int8_t* buff2);
 
 
 #ifdef FIFTEEN_TEST
 int8_t FB_GetStringNumber_test(uint8_t flag);
 int8_t FB_SetStringNumber_test(uint8_t flag);
+int8_t FB_StrCmp_test(uint8_t flag);
 #endif
 
 #endif

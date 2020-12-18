@@ -2,7 +2,7 @@
 #define __DATATYPE_H_
 
 #include "stdio.h"
-
+#include <string.h>
 /* *****************************************************************
 作者：fifteenpeng
 描述：便于各库的移植，在此定义数据类型
