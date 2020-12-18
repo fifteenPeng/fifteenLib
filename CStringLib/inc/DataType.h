@@ -1,10 +1,15 @@
 #ifndef __DATATYPE_H_
 #define __DATATYPE_H_
 
+#include "stdio.h"
+
 /* *****************************************************************
 作者：fifteenpeng
 描述：便于各库的移植，在此定义数据类型
 ******************************************************************** */
+#ifndef NULL
+#define NULL 0
+#endif // !NULL
 
 #ifndef uint8_t
 #define uint8_t unsigned char
@@ -29,6 +34,15 @@
 #ifndef int32_t
 #define int32_t int
 #endif // !int32_t
+
+
+#ifndef uint64_t
+#define uint64_t unsigned long int
+#endif 
+
+#ifndef int64_t
+#define int64_t long int
+#endif 
 
 
 #endif

@@ -1,174 +1,331 @@
 #include "../inc/fifteenString.h"
 
 
+/* *******************************
+函数名：
+描述：输入字符串，提取出数值返回值均为整数，皆为带符号处理
+    如果是小数，则放大为整数接收
 
-/**
- * ******PF*********************
- * 输入带小数点的字符串
- * 字符串转换成数据,小数点右移动多少位。
- * */
+输入：
+    * buff    需要处理的字符串指针
+    * GSNStr_t 相关数据信息结构体
+    DataLen 指定处理数据长度，为0时则直接处理
+输出：
+返回：-1 提取失败  1提取成功
 
-int32_t FS_AtoF(char *Arry,uint8_t pointlen)
+错误描述：
+1.指定数据长度时，遇到非数字数据
+2.处理数据超过int32_t数值
+3.
+********************************** */
+// int8_t GetStringNumber(uint8_t * Buff,int32_t * NumP,uint16_t * ProcLen ,uint32_t * Magn,uint16_t DataLen)
+int8_t FB_GetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t BuffLen)
 {
-    int8_t i = 0;
-    int8_t j = 0;
-    int32_t data = 0;
-    char * Point = 0;
+    // 判断符号位 +1 正数  +1 负数
+    int8_t polarity = 1;
+    // int32_t number1 = 0;
+    int32_t numbertemp = 0;
+    int8_t decimalsflag = 0;
+    uint16_t Cnt = 0;      //遍历字符串
+    uint16_t Len = 0;
 
-    /* 正数 */
-    for(i = 0; (Arry[i]>='0'&& Arry[i]<='9'); i++)
-    {
-        data = data*10 + Arry[i] - '0';
-    }
-
-    if(Arry[i] == '.')
-    {
-        Point = &Arry[i + 1];
-        for(j = 0; (Point[j]>='0'&& Point[j]<='9') && j<pointlen; j++)
-        {
-            data = data*10 + Point[j] - '0';
-        }
-    }
-
-    if(j<pointlen)
-    {
-        for(; j<pointlen; j++)
-        {
-            data = data*10;
-            // DispChar("7");
-        }
-    }
-
-    return data;    
-}
-
-/*
-*************************PF*************************
-描述：转化字符串，转化成浮点数；
-输入：浮点数指针，需要转化的数据指针，转化字符长度
-输出: 转换成功返回 1，转换失败返回 0
-
-失败标志：
-遇到非法字符，
-*/
-char My_AtoInt(int *NumberP,char *Arry, int len)
-{
-// 判断符号位
-int number1 = 0;
-
-int numbertemp = 0;
-
-int polarity = 1;      // 1 正数， -1 负数
-int Cnt = 0; //遍历字符串
-
-if (Arry[Cnt] == '-')
-{
-    //符号判断
-    Cnt += 1;
-    polarity = -1;
-}
-else if (Arry[Cnt] == '+')
-{
-    Cnt += 1;
-     polarity = 1;
-}
-
-for (; Cnt < len && Arry[Cnt] != 0; Cnt++)
-{
-    if (Arry[Cnt] >= '0' && Arry[Cnt] <= '9')
-    {
-        // 正数部分
-        numbertemp = Arry[Cnt] - '0';
-        number1 = number1 * 10 + numbertemp;
-    }
-    else
-    {
-        return 0; //其他字符
-    }
-}
-
-*NumberP = number1 * polarity;
-return 1;
-
-}
-/******************************************
- * 浮点数转换成字符串
- * 输入：fnumberP   浮点数， 
- *      Arry        返回的字符串，
- *      Pointlen    保留几位小数数
- * 返回：已转换的长度
- * 例如：-1.22  Pointlen=3  输出-1.220  
- * 精度受限
- * ****************************************/
-int My_FtoA(float fnumberP,char *Arry, int Pointlen)
-{
-    int number; /* 整数部分 */
-    int numbertemp; /* 整数部分 */
-    float decimals = 0; /* 小数部分 */
-    float decimalstemp; /* 小数部分 */
-    int len = 0;
-    int integerlen = 0;
-    int i = 0;
-    char chartemp;
-    char *Arry2 = NULL;
-
-    if(fnumberP<0)
-    {
-        Arry[0] = '-';
-        fnumberP = -fnumberP;
-    }
-    else
-    {
-        Arry[0] = '+';
-    }
+    if(Ptr == NULL)
+        return -1;
     
-    Arry2 = &Arry[1];
+    Ptr->ProcLen = 0;
+    Ptr->Magn = 1;
+    Ptr->NumP = 0;
+    Ptr->DataLen = 0;
 
+    /* 未指定字符长度 */
+    if(BuffLen == 0)
+        Len = 11;   //数据长度 9 + 符号位1 + 小数点位
+    else
+        Len = BuffLen;
 
-    number = fnumberP;
-    decimals = decimals;//消除警告
-    decimals = fnumberP - number;
-    // 整数数据大小    
-    numbertemp = number;
-    for(i=0; numbertemp>0; i++)
+    //符号处理
+    if (Buff[Cnt] == '-')
     {
-        Arry2[i] = numbertemp%10 + '0';
-        numbertemp = numbertemp/10;
+        Cnt += 1;
+        polarity = -1;
+    }
+    else if (Buff[Cnt] == '+')
+    {
+        Cnt += 1;
+        polarity = 1;
+    }
+    else if(Buff[Cnt] >= '0' && Buff[Cnt] <= '9')
+    {
+        /* 无符号 */
+        Cnt = 0;
+        polarity = 1;
+    }
+    else
+    {
+        /* 异常非字符 数据 */
+        return -1;
+    }
+    Ptr->ProcLen += Cnt;
+
+
+    for (; Cnt < Len && Buff[Cnt] != 0; Cnt++)
+    {
+        if (Buff[Cnt] >= '0' && Buff[Cnt] <= '9')
+        {
+            // printf("1 ");
+            // 正数部分
+            numbertemp = Buff[Cnt] - '0';
+            // number1 = number1 * 10 + numbertemp;
+            Ptr->NumP = Ptr->NumP * 10 + numbertemp;
+            Ptr->ProcLen++;
+            Ptr->DataLen++; 
+            //小数标志
+            if(decimalsflag == 1)
+                Ptr->Magn*=10;
+
+            /* 数据长度超限 */
+            if(Ptr->DataLen>=9)
+                break;
+        }
+        else if(Buff[Cnt] == '.')
+        {
+            //其他字符
+            if(decimalsflag == 0)
+            {
+                decimalsflag = 1;
+                Ptr->ProcLen++;
+                continue;
+            }
+            else
+                break;
+        }
+        else
+        {
+            break;
+        }
+        
     }
 
-    if(i>0)
-    {
-        for(integerlen=0; integerlen<(i/2); integerlen++)
-        {
-            chartemp = Arry2[integerlen];
-            Arry2[integerlen] = Arry2[i-integerlen-1];
+    /* 未能处理完 */
+    if(Cnt < BuffLen)
+        return -1;
 
-            Arry2[i-integerlen-1] = chartemp;
+    if(Ptr->DataLen>0)
+    {
+        // Ptr->NumP = number1 * polarity;
+        Ptr->NumP *= polarity;
+        return 1;
+    }
+
+    return -1;
+}
+
+
+#ifdef FIFTEEN_TEST
+int8_t FB_GetStringNumber_test(uint8_t flag)
+{
+    if(flag != 1)
+        return 0;
+
+    printf("GetStringNumber_test: \r\n");
+
+    // uint8_t *buff = "12345.10";
+    // uint8_t *buff = "-12345.1000";
+    // uint8_t *buff = "+12345.1000";
+    uint8_t *buff = "+12.345";
+
+    GSNStr_t Number;
+    if(FB_GetStringNumber(buff,&Number,0) > 0)
+    {
+        printf("Number:%ld,ProcLen:%d,magn:%d\r\n",Number.NumP,Number.ProcLen,Number.Magn);
+    }
+    else
+    {
+        printf("change fail\r\n");
+    }
+}
+
+int8_t FB_SetStringNumber_test(uint8_t flag)
+{
+    if(flag != 1)
+        return 0;
+
+    printf("SetStringNumber_test: \r\n");
+
+    // uint8_t *buff = "12345.10";
+    // uint8_t *buff = "-12345.1000";
+    // uint8_t *buff = "+12345.1000";
+    uint8_t buff[100] = {0};
+
+    GSNStr_t Number;
+    Number.NumP = -12345;
+    Number.Magn = 1000;
+    Number.symbol = 1;
+
+    if(FB_SetStringNumber(buff,&Number,0) > 0)
+    {
+        printf("Number:%s,ProcLen:%d\r\n",buff,Number.ProcLen);
+    }
+    else
+    {
+        printf("change fail\r\n");
+    }
+}
+#endif
+
+/* *******************************
+函数名：
+描述：设置返回的字符串长度
+
+输入：
+    * buff    输出的数组
+    * GSNStr_t 相关数据信息结构体
+    IntLen  整数的所占的位数
+输出：
+返回：-1 转换失败  1转换成功
+
+错误描述：
+暂无错误
+********************************** */
+// int8_t GetStringNumber(uint8_t * Buff,int32_t * NumP,uint16_t * ProcLen ,uint32_t * Magn,uint16_t DataLen)
+int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
+{
+
+    int32_t number1 = 0;
+    int32_t numbertemp = 0;
+    int32_t numbertemp1 = 0;
+
+    uint16_t Cnt = 0;      //遍历字符串
+    uint16_t Len = 0;
+    int8_t i = 0;
+    uint8_t * Buff1 = NULL;
+    
+    uint16_t integerlen = 0;
+    uint8_t temp;
+
+    if(Ptr->Magn == 0)
+        Ptr->Magn = 1;
+    Ptr->ProcLen=0;
+
+    /* 带符号 */
+    if(Ptr->symbol == 1)
+    {
+        if(Ptr->NumP>=0)
+            Buff[Ptr->ProcLen] = '+';
+        else
+            Buff[Ptr->ProcLen] = '-';        
+        Ptr->ProcLen=1;
+    }
+
+    /* 字符补码，无法输出ASCII */
+    if(Ptr->NumP < 0)
+        Ptr->NumP = 0 - Ptr->NumP;
+    
+    Buff1 = &Buff[Ptr->ProcLen];
+    /* 整数占几位？，小数占几位？ */
+
+
+        // numbertemp = Ptr->Magn;
+        // for(i=0; numbertemp>1; i++)
+        // {
+        //     numbertemp/=10;
+        //     i++;
+        // }
+        /* 整数 */
+        numbertemp = Ptr->NumP / Ptr->Magn;
+        for (i = 0; numbertemp > 0; i++)
+        {
+            Buff1[i] = numbertemp % 10 + '0';
+            numbertemp = numbertemp / 10;
+        }
+
+        /* 装载数据 */
+        if (i > 0)
+        {
+            for (integerlen = 0; integerlen < (i / 2); integerlen++)
+            {
+                temp = Buff1[integerlen];
+                Buff1[integerlen] = Buff1[i - integerlen - 1];
+                Buff1[i - integerlen - 1] = temp;
+            }
+            integerlen = i;
+        }
+        /* 调整数据长度 */
+        
+        
+    if(IntLen != 0)
+    {
+        if(integerlen < IntLen)
+        {
+            // printf("IntLen %d,integerlen %d",IntLen,integerlen);
+            temp = IntLen - integerlen;
+
+            /* 往后搬运 */
+            for(i=integerlen;  i>=0;  i--)
+            {
+                Buff1[i+temp] = Buff1[i];
+            }
+            /* 填充 */
+            for(i=0;i<temp;i++)
+            {
+                Buff1[i] = '0';
+            }
+
+            integerlen = IntLen;
+        }
+        else
+        {
+            /* 大于或等于 数据有效 */
+            // return -1;
+        }
+        //装载小数点
+    }
+    else
+    {
+        /* code */
+    }
+
+    Ptr->ProcLen+=integerlen;
+    if(Ptr->Magn>1)
+    {
+    /* 小数部分 */
+    /* 装载小数点 */
+    Buff1[Ptr->ProcLen-1] = '.';
+    Ptr->ProcLen += 1;
+    Buff1 = &Buff1[Ptr->ProcLen-1];
+
+    numbertemp = Ptr->NumP % Ptr->Magn;
+    for (i = 0; numbertemp > 0; i++)
+    {
+        Buff1[i] = numbertemp % 10 + '0';
+        numbertemp = numbertemp / 10;
+    }
+
+    /* 装载数据 */
+    if (i > 0)
+    {
+        for (integerlen = 0; integerlen < (i / 2); integerlen++)
+        {
+            temp = Buff1[integerlen];
+            Buff1[integerlen] = Buff1[i - integerlen - 1];
+            Buff1[i - integerlen - 1] = temp;
         }
         integerlen = i;
+        Ptr->ProcLen+=integerlen;
+    }
+
     }
     else
     {
-        Arry2[0] = '0';
-        integerlen = 1;
-    }
-
-    Arry2[integerlen] = '.';
-    //小数部分： 不能单独提取出小数进行计算，否则会出现，小数部分精度不对,存储精度足够。
-    decimalstemp = fnumberP;
-    for(i=0;i<Pointlen;i++)
-    {
-        decimalstemp = decimalstemp * 10;
-        numbertemp = decimalstemp;
-        Arry2[integerlen+1+i] = numbertemp %10 + '0';
+        /* 转换结束 */
     }
     
-    len = 1+integerlen+1+Pointlen;
-    return len;
+
+    return 1;
 }
 
-/*
-*************************PF*************************
+
+/*************************PF*************************
 描述：转化字符串，转化成浮点数；
 输入：需要返回的浮点数指针，需要转化的数据指针,转化字符长度
 输出: 转换成功返回 1，转换失败返回 0
@@ -253,15 +410,15 @@ return 1;
 失败标志：
 遇到非法字符，
 */
-char My_AtoIP(uint8_t *IPaddr,char *Arry, int len)
+int8_t My_AtoIP(uint8_t *IPaddr,int8_t *Arry, int len)
 {
 //192.168.1.12
-int number[4] = {0};
-int numbertemp = 0;
+int32_t number[4] = {0};
+int32_t numbertemp = 0;
 
 
-int Cnt = 0; //遍历字符串
-int IPcnt = 0;//当前为IP哪一段；
+int8_t Cnt = 0; //遍历字符串
+int8_t IPcnt = 0;//当前为IP哪一段；
 
 for (Cnt=0; Cnt < len && Arry[Cnt] != 0; Cnt++)
 {
