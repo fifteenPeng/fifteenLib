@@ -171,6 +171,31 @@ int8_t FB_SetStringNumber_test(uint8_t flag)
         printf("change fail\r\n");
     }
 }
+
+
+int8_t FB_StrCmp_test(uint8_t flag)
+{
+        if(flag != 1)
+        return 0;
+
+    printf("FB_StrCmp_test: \r\n");
+
+    // uint8_t *buff = "12345.10";
+    // uint8_t *buff = "-12345.1000";
+    // uint8_t *buff = "+12345.1000";
+    uint8_t buff[100] = {0};
+    memcpy(buff,"<C01_[STA_123]>",15);
+
+    if(FB_StrCmp("<C01_[STA_+123]>","<C01_[ST*_%###]>") > 0)
+    {
+        printf("CMP OK \r\n");
+    }
+    else
+    {
+        printf("CMP ER \r\n");
+    }
+}
+
 #endif
 
 /* *******************************
@@ -324,6 +349,61 @@ int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
     return 1;
 }
 
+/* *******************************
+函数名：
+描述：比较指定的字符串，匹配说明，保证数据的不越界
+    '*' 任意字符 
+    '#' 数字字符 '0' '9'
+    '%' 符号字符 '+' '-'
+输入：
+    * buff1  数组
+    * buff2  数组2
+    
+输出：
+返回：-1 转换失败  1转换成功
+
+错误描述：
+********************************** */
+int8_t FB_StrCmp(int8_t* buff1,int8_t* buff2)
+{
+    int8_t C = 0;
+    uint8_t Cnt = 0;
+
+    for(Cnt=0; buff2[Cnt]!=0; Cnt++)
+    {
+        
+        if(buff1[Cnt] == buff2[Cnt])
+        {
+            continue;
+        }
+
+        if(buff2[Cnt] == '*') 
+        {
+                continue;
+        }
+        else if(buff2[Cnt] == '#') 
+        {
+            if(buff1[Cnt] >= '0' && buff1[Cnt] <= '9')
+            {
+                 continue;
+            }
+            
+        }
+        else if(buff2[Cnt] == '%') 
+        {
+            if(buff1[Cnt] == '+' || buff1[Cnt] == '-')
+            {
+                 continue;
+            }
+            
+        }
+
+         return -1;
+
+    }
+
+    return 1;
+}
 
 /*************************PF*************************
 描述：转化字符串，转化成浮点数；
