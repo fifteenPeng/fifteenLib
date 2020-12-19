@@ -15,7 +15,7 @@ typedef struct GSNStr
     // int64_t NumP;
     uint16_t ProcLen;
     uint16_t DataLen;
-    uint32_t Magn;
+    int32_t Magn;
     /* 是否带符号输出 */
     uint8_t symbol;
     /* data */

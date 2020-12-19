@@ -9,7 +9,7 @@
 输入：
     * buff    需要处理的字符串指针
     * GSNStr_t 相关数据信息结构体
-    DataLen 指定处理数据长度，为0时则直接处理
+    BuffLen 指定处理数据长度，为0时则直接处理
 输出：
 返回：-1 提取失败  1提取成功
 
@@ -120,6 +120,47 @@ int8_t FB_GetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t BuffLen)
     return -1;
 }
 
+/* *******************************
+函数名：
+描述：输入带数值字符串，返回有效数值
+
+输入：
+    * buff    需要处理的字符串指针
+    magn      放大倍数  1  10  100
+输出：
+返回：-1 提取失败  1提取成功
+
+错误描述：
+1.指定数据长度时，遇到非数字数据
+2.处理数据超过int32_t数值
+3.遇到非法字符，停止转换
+********************************** */
+// int8_t GetStringNumber(uint8_t * Buff,int32_t * NumP,uint16_t * ProcLen ,uint32_t * Magn,uint16_t DataLen)
+int8_t FB_AtoI(uint8_t * Buff,int32_t * NumP,int32_t magn)
+{
+    GSNStr_t Number;
+    if(FB_GetStringNumber(Buff,&Number,0) > 0)
+    {
+        if(Number.Magn > magn)
+        {
+            Number.NumP/=(Number.Magn/magn);
+        }
+        else if(Number.Magn < magn)
+        {
+            /* code */
+            Number.NumP*=(magn/Number.Magn);
+        }
+        
+    }
+    else
+    {
+        return -1;
+    }
+    
+    *NumP = Number.NumP;
+    return 1;
+}
+
 
 #ifdef FIFTEEN_TEST
 int8_t FB_GetStringNumber_test(uint8_t flag)
@@ -132,7 +173,7 @@ int8_t FB_GetStringNumber_test(uint8_t flag)
     // uint8_t *buff = "12345.10";
     // uint8_t *buff = "-12345.1000";
     // uint8_t *buff = "+12345.1000";
-    uint8_t *buff = "+12.345";
+    uint8_t *buff = "-1+2.345";
 
     GSNStr_t Number;
     if(FB_GetStringNumber(buff,&Number,0) > 0)
@@ -143,6 +184,17 @@ int8_t FB_GetStringNumber_test(uint8_t flag)
     {
         printf("change fail\r\n");
     }
+
+    int Num;
+    if(FB_AtoI(buff,&Num,10)>0)
+    {
+        printf("FB_AtoI Num:%d\r\n",Num);
+    }
+    else
+    {
+        printf("FB_AtoI change fail\r\n");
+    }
+    
 }
 
 int8_t FB_SetStringNumber_test(uint8_t flag)
