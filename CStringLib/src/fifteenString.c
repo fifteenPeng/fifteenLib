@@ -210,11 +210,11 @@ int8_t FB_SetStringNumber_test(uint8_t flag)
     uint8_t buff[100] = {0};
 
     GSNStr_t Number;
-    Number.NumP = -12345;
+    Number.NumP = -0;
     Number.Magn = 1000;
     Number.symbol = 1;
 
-    if(FB_SetStringNumber(buff,&Number,0) > 0)
+    if(FB_SetStringNumber(buff,&Number,5) > 0)
     {
         printf("Number:%s,ProcLen:%d\r\n",buff,Number.ProcLen);
     }
@@ -308,9 +308,12 @@ int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
         //     numbertemp/=10;
         //     i++;
         // }
+        
+    if(IntLen != 0)
+    {
         /* 整数 */
         numbertemp = Ptr->NumP / Ptr->Magn;
-        for (i = 0; numbertemp > 0; i++)
+        for (i = 0; i < IntLen; i++)
         {
             Buff1[i] = numbertemp % 10 + '0';
             numbertemp = numbertemp / 10;
@@ -328,38 +331,59 @@ int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
             integerlen = i;
         }
         /* 调整数据长度 */
-        
-        
-    if(IntLen != 0)
-    {
-        if(integerlen < IntLen)
-        {
-            // printf("IntLen %d,integerlen %d",IntLen,integerlen);
-            temp = IntLen - integerlen;
 
-            /* 往后搬运 */
-            for(i=integerlen;  i>=0;  i--)
-            {
-                Buff1[i+temp] = Buff1[i];
-            }
-            /* 填充 */
-            for(i=0;i<temp;i++)
-            {
-                Buff1[i] = '0';
-            }
+        // if(integerlen < IntLen)
+        // {
+        //     // printf("IntLen %d,integerlen %d",IntLen,integerlen);
+        //     temp = IntLen - integerlen;
 
-            integerlen = IntLen;
-        }
-        else
-        {
-            /* 大于或等于 数据有效 */
-            // return -1;
-        }
+        //     /* 往后搬运 */
+        //     for(i=integerlen;  i>=0;  i--)
+        //     {
+        //         Buff1[i+temp] = Buff1[i];
+        //     }
+        //     /* 填充 */
+        //     for(i=0;i<temp;i++)
+        //     {
+        //         Buff1[i] = '0';
+        //     }
+
+        //     integerlen = IntLen;
+        // }
+        // else
+        // {
+        //     /* 大于或等于 数据有效 */
+        //     // return -1;
+        // }
         //装载小数点
     }
     else
     {
-        /* code */
+                /* 整数 */
+        numbertemp = Ptr->NumP / Ptr->Magn;
+        for (i = 0; numbertemp>0; i++)
+        {
+            Buff1[i] = numbertemp % 10 + '0';
+            numbertemp = numbertemp / 10;
+        }
+
+        /* 装载数据 */
+        if (i > 0)
+        {
+            for (integerlen = 0; integerlen < (i / 2); integerlen++)
+            {
+                temp = Buff1[integerlen];
+                Buff1[integerlen] = Buff1[i - integerlen - 1];
+                Buff1[i - integerlen - 1] = temp;
+            }
+            integerlen = i;
+        }
+        else
+        {
+            Buff1[0] = '0';
+            integerlen = 1;
+        }
+        
     }
 
     Ptr->ProcLen+=integerlen;
@@ -372,10 +396,12 @@ int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
     Buff1 = &Buff1[Ptr->ProcLen-1];
 
     numbertemp = Ptr->NumP % Ptr->Magn;
-    for (i = 0; numbertemp > 0; i++)
+    numbertemp1 = Ptr->Magn;
+    for (i = 0; numbertemp1 > 1; i++)
     {
         Buff1[i] = numbertemp % 10 + '0';
         numbertemp = numbertemp / 10;
+        numbertemp1 = numbertemp1/10;
     }
 
     /* 装载数据 */
