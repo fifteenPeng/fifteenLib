@@ -6,9 +6,6 @@
 ******************************************************************** */
 #include "../inc/DataType.h"
 
-/* 测试函数开启编译 */
-#define FIFTEEN_TEST
-
 typedef struct GSNStr
 {
      int32_t NumP;

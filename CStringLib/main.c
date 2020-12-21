@@ -1,6 +1,9 @@
+#include "./inc/DataType.h"
+
+#ifdef FIFTEEN_TEST
+
 #include "stdio.h"
 #include "./inc/fifteenString.h"
-#include "./inc/DataType.h"
 
 /* 编译指令：$ gcc main.c ./src/fifteenString.c -o c */
 int main(void)
@@ -10,3 +13,5 @@ int main(void)
     FB_StrCmp_test(1);
     return 1;
 }
+
+#endif
