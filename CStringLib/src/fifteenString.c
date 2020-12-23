@@ -210,11 +210,11 @@ int8_t FB_SetStringNumber_test(uint8_t flag)
     uint8_t buff[100] = {0};
 
     GSNStr_t Number;
-    Number.NumP = -0;
-    Number.Magn = 1000;
-    Number.symbol = 1;
+    Number.NumP = 0;
+    Number.Magn = 100;
+    Number.symbol = 0;
 
-    if(FB_SetStringNumber(buff,&Number,5) > 0)
+    if(FB_SetStringNumber(buff,&Number,0) > 0)
     {
         printf("Number:%s,ProcLen:%d\r\n",buff,Number.ProcLen);
     }
@@ -283,6 +283,11 @@ int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
     if(Ptr->Magn == 0)
         Ptr->Magn = 1;
     Ptr->ProcLen=0;
+
+    // for (i = 0; i < 10; i++)
+    // {
+    //     Buff[i] = '5';
+    // }
 
     /* 带符号 */
     if(Ptr->symbol == 1)
@@ -391,9 +396,9 @@ int8_t FB_SetStringNumber(uint8_t * Buff,GSNStr_t *Ptr,uint16_t IntLen)
     {
     /* 小数部分 */
     /* 装载小数点 */
-    Buff1[Ptr->ProcLen-1] = '.';
+    Buff[Ptr->ProcLen] = '.';
     Ptr->ProcLen += 1;
-    Buff1 = &Buff1[Ptr->ProcLen-1];
+    Buff1 = &Buff[Ptr->ProcLen];
 
     numbertemp = Ptr->NumP % Ptr->Magn;
     numbertemp1 = Ptr->Magn;
