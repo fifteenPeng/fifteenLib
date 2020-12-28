@@ -1,4 +1,4 @@
-#include "../inc/fifteenString.h"
+#include "fifteenString.h"
 
 
 /* *******************************

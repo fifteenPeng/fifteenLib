@@ -5,6 +5,7 @@
 描述：本库用于日常处理字符文件，提取重要数据。处理ASCII命令等信息
 ******************************************************************** */
 #include "../inc/DataType.h"
+#include "../inc/Config.h"
 
 typedef struct GSNStr
 {

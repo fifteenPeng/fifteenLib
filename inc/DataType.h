@@ -1,14 +1,6 @@
 #ifndef __DATATYPE_H_
 #define __DATATYPE_H_
 
-/* 测试函数开启编译 */
-#define FIFTEEN_TEST
-
-
-#ifdef  FIFTEEN_TEST
-#include "stdio.h"
-#include <string.h>
-#endif 
 /* *****************************************************************
 作者：fifteenpeng
 描述：便于各库的移植，在此定义数据类型

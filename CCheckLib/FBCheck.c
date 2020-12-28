@@ -1,0 +1,26 @@
+// 光功率计测试
+uint8_t check(uint8_t *buff, int16_t len)
+{
+    int16_t i;
+    uint32_t CHECK = 0;
+    // 校验 CHECK=(~（帧头+地址+长度+命令+数据）)+1；
+    for(i=0; i<len; i++)
+    {
+        CHECK+=buff[i];
+    }
+    CHECK = (~CHECK) +1;
+
+    return CHECK;
+}
+
+
+    // // uint8_t buff[100] = {0x3c,0xFF,0x07,0x01,0x44,0x01,0x05};//,check 0x3e};
+    // // uint8_t buff[100] = {0x3c,0xFF,0x05,0x01,0x44};//,check 0x3e};
+    // // uint8_t buff[100] = {0x3c,0xFF,0x04,0x40};//,check 0x3e};
+    // // uint8_t buff[100] = {0x7B,0xFF,0x06,0x01,0x4c,0x01};//,check 0x3e};
+
+    // // uint8_t buff[100] = {0x3c, 0xff, 0x05, 0x01, 0x42
+
+    //  uint8_t buff[100] = {0x7B,0xFF,0x07,0x01,0x60,0x01,0x05};
+
+    // printf("\r\nCheck:%x",check(buff,7));
