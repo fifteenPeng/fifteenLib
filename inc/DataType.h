@@ -23,6 +23,7 @@
 
 #ifndef int16_t
 #define int16_t short int
+// typedef short int int16_t
 #endif // !int16_t
 
 #ifndef uint32_t
@@ -42,5 +43,21 @@
 #define int64_t long int
 #endif 
 
+/* 布尔类型 */
+#ifndef TRUE
+#define TRUE 1
+#endif // !TRUE
+
+#ifndef FALSE
+#define FALSE 0
+#endif // !TRUE
+// typedef unsigned char  uint8;  
+// typedef signed   char  int8;   
+// typedef unsigned short uint16; 
+// typedef signed   short int16;  
+// typedef unsigned int   uint32; 
+// typedef signed   int   int32;  
+// typedef float          fp32;   
+// typedef double         fp64;   
 
 #endif
